@@ -307,6 +307,24 @@
         .modal-btn { padding: 12px 24px; margin: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em;}
         #btn-reset { background-color: var(--danger); color: #111; }
         #btn-keep { background-color: var(--success); color: #111; }
+
+        /* --- TOUR TOOLTIP STYLES --- */
+        #tour-tooltip {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            background: var(--shop-bg);
+            border: 2px solid var(--accent);
+            padding: 18px 22px;
+            border-radius: 12px;
+            max-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -318,6 +336,27 @@
             <div class="studio-title">NACA STUDIOS</div>
             <div class="studio-est">EST 2023</div>
             <div class="studio-url">WWW.NACACORPORATION.COM</div>
+        </div>
+    </div>
+
+    <!-- WELCOME MODAL -->
+    <div id="tutorial-welcome-modal" class="modal-overlay">
+        <div class="modal-content" style="padding: 30px; text-align: center; max-width: 450px;">
+            <div class="modal-header" style="color: var(--coin-color); border: none; padding-bottom: 5px;">Welcome to Doggo Clicker! 🐾</div>
+            <p style="font-size: 1.05em; color: var(--text-dim); margin-bottom: 25px; line-height: 1.5;">Ready to start mining, or would you like a guided tour of the site first?</p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="modal-btn" onclick="startTour()" style="background-color: var(--btn-blue); color: #111; margin: 0; border-radius: 8px;">Show me around too 🧭</button>
+                <button class="modal-btn" onclick="skipTutorial()" style="background-color: var(--danger); color: #111; margin: 0; border-radius: 8px;">Skip & Start Digging ⛏️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOUR GUIDED TOOLTIP -->
+    <div id="tour-tooltip">
+        <div id="tour-text" style="color: #fff; font-size: 1em; margin-bottom: 15px; line-height: 1.5;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <button class="buy-btn" onclick="skipTutorial()" style="background-color: var(--danger); font-size: 0.85em; padding: 6px 12px; color: #111;">Skip</button>
+            <button class="buy-btn" id="tour-next-btn" onclick="nextTourStep()" style="background-color: var(--success); color: #111; font-size: 0.9em; padding: 8px 14px;">Continue ➡️</button>
         </div>
     </div>
 
@@ -460,16 +499,93 @@
     </div>
 
     <script>
-        // --- INTRO SPLASH TIMER ---
+        // --- INTRO & TOUR FLOW ---
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const splash = document.getElementById('intro-splash');
                 if(splash) {
                     splash.style.opacity = '0';
-                    setTimeout(() => splash.remove(), 800);
+                    setTimeout(() => {
+                        splash.remove();
+                        // Show welcome modal after intro splash
+                        document.getElementById('tutorial-welcome-modal').style.display = 'flex';
+                    }, 800);
                 }
             }, 2500);
         });
+
+        const tourSteps = [
+            {
+                text: "⛏️ <b>The Rock Wall:</b> Click anywhere on this wall to swing your pickaxe, crack open ores, and earn NACA Coin!",
+                pos: { top: '35%', left: '50%', transform: 'translate(-50%, -50%)' }
+            },
+            {
+                text: "📊 <b>Your Player HUD:</b> Track your current NACA Coin balance, player mining level, and cooldown timer here.",
+                pos: { top: '140px', left: '20px' }
+            },
+            {
+                text: "📈 <b>Sales Prices:</b> Click this button anytime to inspect ore drop rates and coin values.",
+                pos: { bottom: '95px', left: '30px' }
+            },
+            {
+                text: "🛒 <b>SupaKoOl Shop:</b> Spend your hard-earned coins here to upgrade your level or hire automatic mining doggos!",
+                pos: { bottom: '95px', right: '30px' }
+            }
+        ];
+
+        let currentTourStep = 0;
+
+        function startTour() {
+            document.getElementById('tutorial-welcome-modal').style.display = 'none';
+            currentTourStep = 0;
+            showTourStep();
+        }
+
+        function showTourStep() {
+            const tooltip = document.getElementById('tour-tooltip');
+            const textEl = document.getElementById('tour-text');
+            const nextBtn = document.getElementById('tour-next-btn');
+            
+            if (currentTourStep >= tourSteps.length) {
+                tooltip.style.display = 'none';
+                logMessage('Tutorial completed. Ready to dig!');
+                return;
+            }
+
+            tooltip.style.display = 'block';
+            const step = tourSteps[currentTourStep];
+            textEl.innerHTML = step.text;
+
+            if (currentTourStep === tourSteps.length - 1) {
+                nextBtn.innerText = "I'm ready to dig!";
+            } else {
+                nextBtn.innerText = "Continue ➡️";
+            }
+
+            // Reset positioning rules
+            tooltip.style.top = 'auto';
+            tooltip.style.bottom = 'auto';
+            tooltip.style.left = 'auto';
+            tooltip.style.right = 'auto';
+            tooltip.style.transform = 'none';
+
+            if (step.pos.top) tooltip.style.top = step.pos.top;
+            if (step.pos.bottom) tooltip.style.bottom = step.pos.bottom;
+            if (step.pos.left) tooltip.style.left = step.pos.left;
+            if (step.pos.right) tooltip.style.right = step.pos.right;
+            if (step.pos.transform) tooltip.style.transform = step.pos.transform;
+        }
+
+        function nextTourStep() {
+            currentTourStep++;
+            showTourStep();
+        }
+
+        function skipTutorial() {
+            document.getElementById('tutorial-welcome-modal').style.display = 'none';
+            document.getElementById('tour-tooltip').style.display = 'none';
+            logMessage('Tutorial skipped. Ready to dig!');
+        }
 
         // --- GAME STATE ---
         let coins = 0;
