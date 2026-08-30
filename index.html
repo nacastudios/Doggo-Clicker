@@ -332,16 +332,16 @@
         /* Ultra-compact mobile layout rules */
         @media(max-width: 480px) {
             #mini-log { 
-                width: 130px; 
+                width: 140px; 
                 height: 75px; 
                 top: 10px; 
                 right: 10px; 
             } 
-            .log-header { font-size: 0.6em; padding: 2px 4px; }
+            .log-header { font-size: 0.55em; padding: 2px 4px; }
             #log-container { font-size: 0.6em; padding: 2px 4px; }
             #hud-top-left { padding: 6px 10px; top: 10px; left: 10px; }
-            #coin-display { font-size: 1.15em; }
-            #player-meta { font-size: 0.75em; }
+            #coin-display { font-size: 1.1em; }
+            #player-meta { font-size: 0.7em; }
             .hud-btn { padding: 8px 14px; font-size: 0.9em; bottom: 15px; }
         }
     </style>
@@ -415,7 +415,7 @@
                         <div class="item-name" style="color: var(--ruby);">Ruby</div>
                         <div class="item-desc">Rarity: Common (70% Drop Rate)</div>
                     </div>
-                    <div class="price-value">10 COIN</div>
+                    <div class="price-value">10 NACA COIN</div>
                 </div>
 
                 <div class="list-item">
@@ -424,7 +424,7 @@
                         <div class="item-name" style="color: var(--gold);">Gold</div>
                         <div class="item-desc">Rarity: Uncommon (20% Drop Rate)</div>
                     </div>
-                    <div class="price-value">50 COIN</div>
+                    <div class="price-value">50 NACA COIN</div>
                 </div>
 
                 <div class="list-item">
@@ -433,7 +433,7 @@
                         <div class="item-name" style="color: var(--diamond);">Diamond</div>
                         <div class="item-desc">Rarity: Rare (9% Drop Rate)</div>
                     </div>
-                    <div class="price-value">155 COIN</div>
+                    <div class="price-value">155 NACA COIN</div>
                 </div>
 
                 <div class="list-item">
@@ -442,7 +442,7 @@
                         <div class="item-name" style="color: var(--emerald);">Emerald</div>
                         <div class="item-desc">Rarity: Legendary (1% Drop Rate)</div>
                     </div>
-                    <div class="price-value">1,000 COIN</div>
+                    <div class="price-value">1,000 NACA COIN</div>
                 </div>
             </div>
         </div>
@@ -455,13 +455,22 @@
             <div class="modal-header">SupaKoOl Shop</div>
             
             <div class="items-container">
+                <div class="list-item" id="shop-reset-item" style="display: none;">
+                    <div class="item-icon">🔄</div>
+                    <div class="item-details">
+                        <div class="item-name">Universe Reset</div>
+                        <div class="item-desc">Prestige and restart your mining empire.</div>
+                    </div>
+                    <button class="buy-btn" onclick="resetGame()" style="background-color: var(--danger); color: #111;">Reset</button>
+                </div>
+
                 <div class="list-item">
                     <div class="item-icon">⬆️</div>
                     <div class="item-details">
                         <div class="item-name">Level Up</div>
                         <div class="item-desc">-2s click time. Lvl 6 = 2x ore.</div>
                     </div>
-                    <button class="buy-btn" id="btn-level" onclick="buyLevel()">50 COIN</button>
+                    <button class="buy-btn" id="btn-level" onclick="buyLevel()">50 NACA COIN</button>
                 </div>
 
                 <div class="list-item">
@@ -471,7 +480,7 @@
                         <div class="item-desc">Mines 1 ore / 10s</div>
                         <div class="item-owned">Owned: <span id="qty-bob">0</span></div>
                     </div>
-                    <button class="buy-btn" id="btn-bob" onclick="buyDog('bob', 30, '🐕')">30 COIN</button>
+                    <button class="buy-btn" id="btn-bob" onclick="buyDog('bob', 30, '🐕')">30 NACA COIN</button>
                 </div>
 
                 <div class="list-item">
@@ -481,7 +490,7 @@
                         <div class="item-desc">Mines 1 ore / 7s</div>
                         <div class="item-owned">Owned: <span id="qty-hardy">0</span></div>
                     </div>
-                    <button class="buy-btn" id="btn-hardy" onclick="buyDog('hardy', 500, '🦮')">500 COIN</button>
+                    <button class="buy-btn" id="btn-hardy" onclick="buyDog('hardy', 500, '🦮')">500 NACA COIN</button>
                 </div>
 
                 <div class="list-item">
@@ -491,7 +500,7 @@
                         <div class="item-desc">Mines 1 ore / 3s</div>
                         <div class="item-owned">Owned: <span id="qty-patricia">0</span></div>
                     </div>
-                    <button class="buy-btn" id="btn-patricia" onclick="buyDog('patricia', 2000, '🐩')">2,000 COIN</button>
+                    <button class="buy-btn" id="btn-patricia" onclick="buyDog('patricia', 2000, '🐩')">2,000 NACA COIN</button>
                 </div>
 
                 <div class="list-item">
@@ -501,7 +510,7 @@
                         <div class="item-desc">Mines 2 ores / 3s</div>
                         <div class="item-owned">Owned: <span id="qty-conrad">0</span></div>
                     </div>
-                    <button class="buy-btn" id="btn-conrad" onclick="buyDog('conrad', 5000, '🐕‍🦺')">5,000 COIN</button>
+                    <button class="buy-btn" id="btn-conrad" onclick="buyDog('conrad', 5000, '🐕‍🦺')">5,000 NACA COIN</button>
                 </div>
             </div>
         </div>
@@ -804,7 +813,14 @@
         function closePrices() { document.getElementById('prices-modal').style.display = 'none'; }
         function closePricesOutside(event) { if(event.target === document.getElementById('prices-modal')) closePrices(); }
 
-        function closeEndgame() { document.getElementById('endgame-modal').style.display = 'none'; }
+        function closeEndgame() { 
+            document.getElementById('endgame-modal').style.display = 'none'; 
+            const resetItem = document.getElementById('shop-reset-item');
+            if (resetItem && resetItem.style.display === 'none') {
+                resetItem.style.display = 'flex';
+                logMessage('🔄 Reset has been added to the Shop!');
+            }
+        }
 
         // --- AUTO-MINE TIMERS ---
         setInterval(() => { if (dogs.bob > 0) { animateDogs('bob'); processMineResult(dogs.bob, 'Bob', 'bob'); } }, 10000);
@@ -823,7 +839,7 @@
         }
 
         function updateUI() {
-            document.getElementById('coin-display').innerText = `${coins.toLocaleString()} COIN`;
+            document.getElementById('coin-display').innerText = `${coins.toLocaleString()} NACA COIN`;
             document.getElementById('stat-level').innerText = (playerLevel === 6) ? 'MAX' : playerLevel;
             document.getElementById('stat-cooldown').innerText = (clickCooldown / 1000);
 
