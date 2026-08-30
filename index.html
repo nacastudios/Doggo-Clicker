@@ -362,7 +362,10 @@
     <div id="tutorial-welcome-modal" class="modal-overlay">
         <div class="modal-content" style="padding: 25px; text-align: center; max-width: 400px; display: block;">
             <div class="modal-header" style="color: var(--coin-color); border: none; padding-bottom: 5px;">Welcome to Doggo Clicker! 🐾</div>
-            <p style="font-size: 1em; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5;">Ready to start mining, or would you like a guided tour of the game first?</p>
+            <p style="font-size: 0.95em; color: var(--text-dim); margin-bottom: 15px; line-height: 1.4;">
+                <b>How to beat the game:</b> Reach Max Level (Lvl 6), hire every doggo, and discover all 4 rare ores (Ruby, Gold, Diamond, Emerald)!
+            </p>
+            <p style="font-size: 0.95em; color: var(--text-dim); margin-bottom: 20px; line-height: 1.4;">Ready to start mining, or would you like a guided tour of the game first?</p>
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <button class="modal-btn" onclick="startTour()" style="background-color: var(--btn-blue); color: #111; margin: 0; border-radius: 8px; width: 100%;">Show me around too 🧭</button>
                 <button class="modal-btn" onclick="skipTutorial()" style="background-color: var(--danger); color: #111; margin: 0; border-radius: 8px; width: 100%;">Skip & Start Digging ⛏️</button>
@@ -468,7 +471,7 @@
                     <div class="item-icon">⬆️</div>
                     <div class="item-details">
                         <div class="item-name">Level Up</div>
-                        <div class="item-desc">-2s click time. Lvl 6 = 2x ore.</div>
+                        <div class="item-desc">-2s click time.</div>
                     </div>
                     <button class="buy-btn" id="btn-level" onclick="buyLevel()">50 NACA COIN</button>
                 </div>
