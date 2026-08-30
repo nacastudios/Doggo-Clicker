@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doggo Clicker - Immersive Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Doggo Clicker - Universal Edition</title>
     <style>
         :root {
             --mine-bg: #11111b;
@@ -25,7 +25,7 @@
             --emerald: #a6e3a1;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -34,8 +34,10 @@
             margin: 0;
             padding: 0;
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
             user-select: none;
+            touch-action: manipulation;
         }
 
         /* --- INTRO SPLASH SCREEN --- */
@@ -52,15 +54,16 @@
 
         .intro-content {
             text-align: center;
+            padding: 20px;
         }
 
         .globe-logo {
-            font-size: 5em;
+            font-size: 4em;
             animation: pulse-globe 1.5s infinite alternate ease-in-out;
         }
 
         .studio-title {
-            font-size: 3.5em;
+            font-size: 2.8em;
             font-weight: 900;
             color: #111;
             letter-spacing: 2px;
@@ -68,7 +71,7 @@
         }
 
         .studio-est {
-            font-size: 1.2em;
+            font-size: 1.1em;
             font-weight: bold;
             color: #555;
             margin-top: 2px;
@@ -76,7 +79,7 @@
         }
 
         .studio-url {
-            font-size: 1.1em;
+            font-size: 0.95em;
             font-weight: bold;
             color: #e53935;
             margin-top: 15px;
@@ -119,7 +122,7 @@
             position: absolute;
             left: 50%; top: 50%;
             transform: translate(-50%, -50%);
-            font-size: 6em;
+            font-size: 5em;
             transition: transform 0.05s ease-out;
             pointer-events: none;
             z-index: 5;
@@ -138,7 +141,7 @@
 
         .visual-dog {
             position: absolute;
-            font-size: 3em;
+            font-size: 2.5em;
             transition: transform 0.2s ease-out;
         }
         .dog-bark { transform: scale(1.3) translateY(-10px); }
@@ -146,7 +149,7 @@
         /* Floating Ores */
         .ore-visual {
             position: absolute;
-            font-size: 1.5em;
+            font-size: 1.3em;
             font-weight: bold;
             pointer-events: none;
             animation: float-up-fade 1.2s ease-out forwards;
@@ -162,9 +165,9 @@
         /* --- HEADS UP DISPLAY (HUD) --- */
         #hud-top-left {
             position: absolute;
-            top: 20px; left: 20px;
-            background: rgba(17, 17, 27, 0.8);
-            padding: 15px 25px;
+            top: 15px; left: 15px;
+            background: rgba(17, 17, 27, 0.85);
+            padding: 12px 18px;
             border-radius: 12px;
             border: 2px solid rgba(255,255,255,0.1);
             z-index: 10;
@@ -172,21 +175,21 @@
         }
 
         #coin-display {
-            font-size: 2em;
+            font-size: 1.6em;
             font-weight: bold;
             color: var(--coin-color);
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             text-shadow: 0 0 10px rgba(249, 226, 175, 0.4);
         }
 
-        #player-meta { font-size: 1em; color: var(--text-dim); }
+        #player-meta { font-size: 0.9em; color: var(--text-dim); }
 
         /* --- MINI LOG (Top Right) --- */
         #mini-log {
             position: absolute;
-            top: 20px; right: 20px;
-            width: 260px; height: 160px;
-            background: rgba(17, 17, 27, 0.7);
+            top: 15px; right: 15px;
+            width: 220px; height: 130px;
+            background: rgba(17, 17, 27, 0.75);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 8px;
             display: flex; flex-direction: column;
@@ -195,55 +198,41 @@
         }
         
         .log-header {
-            padding: 8px 10px;
+            padding: 6px 8px;
             background: rgba(0,0,0,0.5);
-            font-size: 0.8em; font-weight: bold;
+            font-size: 0.75em; font-weight: bold;
             color: var(--text-dim); text-transform: uppercase;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         #log-container {
-            padding: 8px 10px;
-            font-size: 0.85em; color: #fff;
+            padding: 6px 8px;
+            font-size: 0.8em; color: #fff;
             overflow-y: auto; flex: 1;
             display: flex; flex-direction: column-reverse;
             font-family: monospace;
         }
 
         /* --- MAIN BUTTONS (Bottom Corners) --- */
-        #shop-toggle-btn {
+        .hud-btn {
             position: absolute;
-            bottom: 30px; right: 30px;
-            background-color: var(--btn-blue);
-            color: var(--mine-bg);
+            bottom: 20px;
             border: none;
-            padding: 15px 30px;
-            font-size: 1.3em; font-weight: bold;
-            border-radius: 30px;
+            padding: 12px 20px;
+            font-size: 1.1em; font-weight: bold;
+            border-radius: 25px;
             cursor: pointer;
             z-index: 10;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             transition: transform 0.1s, background-color 0.2s;
         }
-        #shop-toggle-btn:hover { background-color: var(--btn-hover); transform: translateY(-2px); }
-        #shop-toggle-btn:active { transform: translateY(2px); }
+        .hud-btn:active { transform: scale(0.95); }
 
-        #prices-toggle-btn {
-            position: absolute;
-            bottom: 30px; left: 30px;
-            background-color: #cba6f7;
-            color: var(--mine-bg);
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.3em; font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            z-index: 10;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            transition: transform 0.1s, background-color 0.2s;
-        }
-        #prices-toggle-btn:hover { background-color: #d4b4fb; transform: translateY(-2px); }
-        #prices-toggle-btn:active { transform: translateY(2px); }
+        #prices-toggle-btn { left: 15px; background-color: #cba6f7; color: var(--mine-bg); }
+        #prices-toggle-btn:hover { background-color: #d4b4fb; }
+
+        #shop-toggle-btn { right: 15px; background-color: var(--btn-blue); color: var(--mine-bg); }
+        #shop-toggle-btn:hover { background-color: var(--btn-hover); }
 
         /* --- MODALS --- */
         .modal-overlay {
@@ -253,58 +242,63 @@
             z-index: 1000;
             justify-content: center; align-items: center;
             backdrop-filter: blur(3px);
+            padding: 15px;
         }
 
         .modal-content {
             background-color: var(--shop-bg);
             border: 2px solid rgba(255,255,255,0.1);
             border-radius: 12px;
-            width: 90%; max-width: 600px;
+            width: 100%; max-width: 500px;
+            max-height: 85vh;
             position: relative;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
         }
 
         .modal-header {
-            padding: 20px; text-align: center;
+            padding: 15px; text-align: center;
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 1.5em; color: var(--accent); font-weight: bold;
+            font-size: 1.3em; color: var(--accent); font-weight: bold;
         }
 
         .close-btn {
-            position: absolute; top: 15px; right: 15px;
+            position: absolute; top: 12px; right: 15px;
             background: none; border: none; color: var(--danger);
-            font-size: 1.5em; cursor: pointer; font-weight: bold;
+            font-size: 1.4em; cursor: pointer; font-weight: bold;
         }
 
         .items-container {
-            padding: 20px; max-height: 60vh; overflow-y: auto;
+            padding: 15px; overflow-y: auto;
             display: flex; flex-direction: column; gap: 10px;
         }
 
         .list-item {
             display: flex; align-items: center;
-            background: rgba(0,0,0,0.2); padding: 12px 15px;
-            border-radius: 8px; gap: 15px;
+            background: rgba(0,0,0,0.2); padding: 10px 12px;
+            border-radius: 8px; gap: 12px;
         }
         
-        .item-icon { font-size: 2.2em; }
+        .item-icon { font-size: 2em; }
         .item-details { flex: 1; }
-        .item-name { font-weight: bold; font-size: 1.1em; color: #fff; }
-        .item-desc { font-size: 0.9em; color: var(--text-dim); margin-top: 3px; }
-        .item-owned { font-size: 0.85em; color: var(--coin-color); margin-top: 3px; }
+        .item-name { font-weight: bold; font-size: 1em; color: #fff; }
+        .item-desc { font-size: 0.8em; color: var(--text-dim); margin-top: 2px; }
+        .item-owned { font-size: 0.8em; color: var(--coin-color); margin-top: 2px; }
         
-        .price-value { font-weight: bold; font-size: 1.2em; color: var(--coin-color); }
+        .price-value { font-weight: bold; font-size: 1.1em; color: var(--coin-color); }
 
         .buy-btn {
             background-color: var(--btn-blue); color: #111;
-            border: none; padding: 10px 15px; border-radius: 6px;
+            border: none; padding: 8px 12px; border-radius: 6px;
             font-weight: bold; cursor: pointer; min-width: max-content;
+            font-size: 0.9em;
         }
         .buy-btn:hover:not(:disabled) { background-color: var(--btn-hover); }
-        .buy-btn:disabled { background-color: var(--btn-disabled); cursor: not-allowed; opacity: 0.5; color: #fff;}
+        .buy-btn:disabled { background-color: var(--btn-disabled); cursor: not-allowed; opacity: 0.5; color: #fff; }
 
-        #endgame-content { text-align: center; padding: 40px; }
-        .modal-btn { padding: 12px 24px; margin: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em;}
+        #endgame-content { text-align: center; padding: 30px 20px; }
+        .modal-btn { padding: 10px 20px; margin: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1em;}
         #btn-reset { background-color: var(--danger); color: #111; }
         #btn-keep { background-color: var(--success); color: #111; }
 
@@ -315,15 +309,23 @@
             z-index: 2000;
             background: var(--shop-bg);
             border: 2px solid var(--accent);
-            padding: 18px 22px;
+            padding: 15px 18px;
             border-radius: 12px;
-            max-width: 320px;
+            width: 280px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.9);
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Responsive adjustments for extremely small screens */
+        @media(max-width: 480px) {
+            #mini-log { display: none; } /* Hide log on tiny phones to save space */
+            #hud-top-left { padding: 8px 12px; }
+            #coin-display { font-size: 1.3em; }
+            .hud-btn { padding: 10px 16px; font-size: 1em; bottom: 15px; }
         }
     </style>
 </head>
@@ -341,27 +343,27 @@
 
     <!-- WELCOME MODAL -->
     <div id="tutorial-welcome-modal" class="modal-overlay">
-        <div class="modal-content" style="padding: 30px; text-align: center; max-width: 450px;">
+        <div class="modal-content" style="padding: 25px; text-align: center; max-width: 400px; display: block;">
             <div class="modal-header" style="color: var(--coin-color); border: none; padding-bottom: 5px;">Welcome to Doggo Clicker! 🐾</div>
-            <p style="font-size: 1.05em; color: var(--text-dim); margin-bottom: 25px; line-height: 1.5;">Ready to start mining, or would you like a guided tour of the site first?</p>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button class="modal-btn" onclick="startTour()" style="background-color: var(--btn-blue); color: #111; margin: 0; border-radius: 8px;">Show me around too 🧭</button>
-                <button class="modal-btn" onclick="skipTutorial()" style="background-color: var(--danger); color: #111; margin: 0; border-radius: 8px;">Skip & Start Digging ⛏️</button>
+            <p style="font-size: 1em; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5;">Ready to start mining, or would you like a guided tour of the game first?</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="modal-btn" onclick="startTour()" style="background-color: var(--btn-blue); color: #111; margin: 0; border-radius: 8px; width: 100%;">Show me around too 🧭</button>
+                <button class="modal-btn" onclick="skipTutorial()" style="background-color: var(--danger); color: #111; margin: 0; border-radius: 8px; width: 100%;">Skip & Start Digging ⛏️</button>
             </div>
         </div>
     </div>
 
     <!-- TOUR GUIDED TOOLTIP -->
     <div id="tour-tooltip">
-        <div id="tour-text" style="color: #fff; font-size: 1em; margin-bottom: 15px; line-height: 1.5;"></div>
+        <div id="tour-text" style="color: #fff; font-size: 0.95em; margin-bottom: 12px; line-height: 1.4;"></div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <button class="buy-btn" onclick="skipTutorial()" style="background-color: var(--danger); font-size: 0.85em; padding: 6px 12px; color: #111;">Skip</button>
-            <button class="buy-btn" id="tour-next-btn" onclick="nextTourStep()" style="background-color: var(--success); color: #111; font-size: 0.9em; padding: 8px 14px;">Continue ➡️</button>
+            <button class="buy-btn" onclick="skipTutorial()" style="background-color: var(--danger); font-size: 0.8em; padding: 5px 10px; color: #111;">Skip</button>
+            <button class="buy-btn" id="tour-next-btn" onclick="nextTourStep()" style="background-color: var(--success); color: #111; font-size: 0.85em; padding: 6px 12px;">Continue ➡️</button>
         </div>
     </div>
 
-    <!-- Mining Background (Clickable Area) -->
-    <div id="mining-zone" onclick="playerMine(event)"></div>
+    <!-- Mining Background (Clickable / Tapable Area) -->
+    <div id="mining-zone" ontouchstart="handleMiningInput(event)" onclick="handleMiningInput(event)"></div>
     
     <div id="cooldown-bar"></div>
     <div id="miner-player">👷‍♂️</div>
@@ -380,8 +382,8 @@
     </div>
 
     <!-- Toggle Buttons -->
-    <button id="prices-toggle-btn" onclick="openPrices()">📊 Sales Prices</button>
-    <button id="shop-toggle-btn" onclick="openShop()">🛒 SupaKoOl Shop</button>
+    <button id="prices-toggle-btn" class="hud-btn" onclick="openPrices()">📊 Sales Prices</button>
+    <button id="shop-toggle-btn" class="hud-btn" onclick="openShop()">🛒 SupaKoOl Shop</button>
 
     <!-- PRICES MODAL -->
     <div id="prices-modal" class="modal-overlay" onclick="closePricesOutside(event)">
@@ -490,11 +492,13 @@
 
     <!-- ENDGAME MODAL -->
     <div id="endgame-modal" class="modal-overlay">
-        <div class="modal-content" id="endgame-content">
-            <h2 style="color: var(--coin-color); font-size: 2em; margin-top: 0;">Mined It All! 🏆</h2>
-            <p style="font-size: 1.1em; margin-bottom: 30px;">You hit Max Level, hired every doggo, and found every type of rare ore!</p>
-            <button class="modal-btn" id="btn-reset" onclick="resetGame()">Reset & Prestige</button>
-            <button class="modal-btn" id="btn-keep" onclick="closeEndgame()">Keep Digging</button>
+        <div class="modal-content" id="endgame-content" style="display: block;">
+            <h2 style="color: var(--coin-color); font-size: 1.8em; margin-top: 0;">Mined It All! 🏆</h2>
+            <p style="font-size: 1em; margin-bottom: 20px;">You hit Max Level, hired every doggo, and found every type of rare ore!</p>
+            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <button class="modal-btn" id="btn-reset" onclick="resetGame()">Reset & Prestige</button>
+                <button class="modal-btn" id="btn-keep" onclick="closeEndgame()">Keep Digging</button>
+            </div>
         </div>
     </div>
 
@@ -507,7 +511,6 @@
                     splash.style.opacity = '0';
                     setTimeout(() => {
                         splash.remove();
-                        // Show welcome modal after intro splash
                         document.getElementById('tutorial-welcome-modal').style.display = 'flex';
                     }, 800);
                 }
@@ -516,20 +519,20 @@
 
         const tourSteps = [
             {
-                text: "⛏️ <b>The Rock Wall:</b> Click anywhere on this wall to swing your pickaxe, crack open ores, and earn NACA Coin!",
+                text: "⛏️ <b>The Rock Wall:</b> Tap or click anywhere on this wall to swing your pickaxe, crack open ores, and earn NACA Coin!",
                 pos: { top: '35%', left: '50%', transform: 'translate(-50%, -50%)' }
             },
             {
                 text: "📊 <b>Your Player HUD:</b> Track your current NACA Coin balance, player mining level, and cooldown timer here.",
-                pos: { top: '140px', left: '20px' }
+                pos: { top: '120px', left: '15px' }
             },
             {
-                text: "📈 <b>Sales Prices:</b> Click this button anytime to inspect ore drop rates and coin values.",
-                pos: { bottom: '95px', left: '30px' }
+                text: "📈 <b>Sales Prices:</b> Tap this button anytime to inspect ore drop rates and coin values.",
+                pos: { bottom: '85px', left: '15px' }
             },
             {
                 text: "🛒 <b>SupaKoOl Shop:</b> Spend your hard-earned coins here to upgrade your level or hire automatic mining doggos!",
-                pos: { bottom: '95px', right: '30px' }
+                pos: { bottom: '85px', right: '15px' }
             }
         ];
 
@@ -695,19 +698,33 @@
             }
         }
 
-        // --- INTERACTIONS ---
-        function playerMine(event) {
+        // --- UNIVERSAL INPUT INTERACTION (TOUCH & MOUSE) ---
+        let lastTouchTime = 0;
+        function handleMiningInput(event) {
+            // Prevent double firing on mobile browsers that trigger both touchstart and click
+            if (event.type === 'touchstart') {
+                lastTouchTime = Date.now();
+            } else if (event.type === 'click' && Date.now() - lastTouchTime < 500) {
+                return;
+            }
+
             if (isCooldown) return;
 
             const avatar = document.getElementById('miner-player');
             avatar.classList.add('mining-swing');
             setTimeout(() => avatar.classList.remove('mining-swing'), 100);
 
-            const clickX = event.clientX;
-            const clickY = event.clientY;
+            let clientX, clientY;
+            if (event.touches && event.touches.length > 0) {
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            } else {
+                clientX = event.clientX;
+                clientY = event.clientY;
+            }
 
             let ores = (playerLevel === 6) ? 2 : 1;
-            processMineResult(ores, 'You', null, clickX, clickY);
+            processMineResult(ores, 'You', null, clientX, clientY);
 
             isCooldown = true;
             document.getElementById('mining-zone').style.cursor = 'wait';
