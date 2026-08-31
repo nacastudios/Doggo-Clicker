@@ -2,123 +2,960 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doggo Clicker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Doggo Clicker - Universal Edition</title>
     <style>
+        :root {
+            --mine-bg: #11111b;
+            --rock-wall: #1e1e2e;
+            --text-color: #cdd6f4;
+            --text-dim: #a6adc8;
+            --accent: #f5c2e7;
+            --coin-color: #f9e2af;
+            --shop-bg: #313244;
+            --btn-blue: #89b4fa;
+            --btn-hover: #b4befe;
+            --btn-disabled: #585b70;
+            --danger: #f38ba8;
+            --success: #a6e3a1;
+            
+            --ruby: #f38ba8;
+            --gold: #f9e2af;
+            --diamond: #89dceb;
+            --emerald: #a6e3a1;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #fdf6ec;
-            text-align: center;
-            padding-top: 50px;
-            color: #333;
-            overflow: hidden;
-        }
-        h1 {
-            color: #d97706;
-            margin-bottom: 5px;
-        }
-        .subtitle {
-            font-style: italic;
-            color: #78350f;
-            margin-bottom: 20px;
-        }
-        #click-btn {
-            font-size: 80px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            outline: none;
-            transition: transform 0.1s ease;
-        }
-        #click-btn:active {
-            transform: scale(0.85);
-        }
-        .counter {
-            font-size: 28px;
-            font-weight: bold;
-            margin-top: 20px;
-            color: #b45309;
-        }
-        /* Secret Cutscene Overlay Styling */
-        #cutscene-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--mine-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
             height: 100vh;
-            background-color: rgba(0, 0, 0, 0.9);
-            color: #fff;
+            width: 100vw;
+            overflow: hidden;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        /* --- INTRO SPLASH SCREEN --- */
+        #intro-splash {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ffffff;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .intro-content {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .globe-logo {
+            font-size: 4em;
+            animation: pulse-globe 1.5s infinite alternate ease-in-out;
+        }
+
+        .studio-title {
+            font-size: 2.8em;
+            font-weight: 900;
+            color: #111;
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+
+        .studio-est {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #555;
+            margin-top: 2px;
+            letter-spacing: 2px;
+        }
+
+        .studio-url {
+            font-size: 0.95em;
+            font-weight: bold;
+            color: #e53935;
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulse-globe {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.06); }
+        }
+
+        /* --- IMMERSIVE MINING ZONE --- */
+        #mining-zone {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.8) 100%),
+                linear-gradient(45deg, #2a2b3c 25%, transparent 25%),
+                linear-gradient(-45deg, #2a2b3c 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #2a2b3c 75%),
+                linear-gradient(-45deg, transparent 75%, #2a2b3c 75%);
+            background-size: 100% 100%, 30px 30px, 30px 30px, 30px 30px, 30px 30px;
+            background-color: var(--rock-wall);
+            cursor: crosshair;
+            z-index: 1;
+        }
+
+        #cooldown-bar {
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 8px; width: 0%;
+            background-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+            z-index: 10;
+        }
+
+        #miner-player {
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5em;
+            transition: transform 0.05s ease-out;
             pointer-events: none;
-            transition: opacity 1s ease-in-out;
+            z-index: 5;
         }
-        #cutscene-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
+
+        .mining-swing { 
+            transform: translate(-50%, -50%) rotate(-25deg) scale(1.1) !important; 
         }
-        .explosion {
-            font-size: 100px;
-            animation: shake 0.5s infinite;
+
+        #dog-den {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 4;
         }
-        .cutscene-text {
-            font-size: 24px;
-            max-width: 600px;
-            line-height: 1.5;
-            margin-top: 20px;
-            color: #fca5a5;
+
+        .visual-dog {
+            position: absolute;
+            font-size: 2.5em;
+            transition: transform 0.2s ease-out;
         }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            60% { transform: translate(-3px, 1px) role(0deg); }
-            80% { transform: translate(1px, -1px) rotate(-1deg); }
-            100% { transform: translate(1px, 2px) rotate(0deg); }
+        .dog-bark { transform: scale(1.3) translateY(-10px); }
+
+        .ore-visual {
+            position: absolute;
+            font-size: 1.3em;
+            font-weight: bold;
+            pointer-events: none;
+            animation: float-up-fade 1.2s ease-out forwards;
+            z-index: 6;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        @keyframes float-up-fade {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(0, -100px) scale(1.5); }
+        }
+
+        #hud-top-left {
+            position: absolute;
+            top: 15px; left: 15px;
+            background: rgba(17, 17, 27, 0.85);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+            z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+
+        #coin-display {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--coin-color);
+            margin-bottom: 2px;
+            text-shadow: 0 0 10px rgba(249, 226, 175, 0.4);
+        }
+
+        #player-meta { font-size: 0.85em; color: var(--text-dim); }
+
+        #mini-log {
+            position: absolute;
+            top: 15px; right: 15px;
+            width: 220px; height: 110px;
+            background: rgba(17, 17, 27, 0.85);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            display: flex; 
+            flex-direction: column;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        
+        .log-header {
+            padding: 4px 8px;
+            background: rgba(0,0,0,0.6);
+            font-size: 0.7em; 
+            font-weight: bold;
+            color: var(--accent); 
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            letter-spacing: 0.5px;
+        }
+
+        #log-container {
+            padding: 4px 6px;
+            font-size: 0.72em; 
+            color: #fff;
+            overflow-y: auto; 
+            flex: 1;
+            display: flex; 
+            flex-direction: column-reverse;
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .hud-btn {
+            position: absolute;
+            bottom: 20px;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.1em; font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        .hud-btn:active { transform: scale(0.95); }
+
+        #prices-toggle-btn { left: 15px; background-color: #cba6f7; color: var(--mine-bg); }
+        #prices-toggle-btn:hover { background-color: #d4b4fb; }
+
+        #shop-toggle-btn { right: 15px; background-color: var(--btn-blue); color: var(--mine-bg); }
+        #shop-toggle-btn:hover { background-color: var(--btn-hover); }
+
+        .modal-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(3px);
+            padding: 15px;
+        }
+
+        .modal-content {
+            background-color: var(--shop-bg);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            width: 100%; max-width: 500px;
+            max-height: 85vh;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 15px; text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 1.3em; color: var(--accent); font-weight: bold;
+        }
+
+        .close-btn {
+            position: absolute; top: 12px; right: 15px;
+            background: none; border: none; color: var(--danger);
+            font-size: 1.4em; cursor: pointer; font-weight: bold;
+        }
+
+        .items-container {
+            padding: 15px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .list-item {
+            display: flex; align-items: center;
+            background: rgba(0,0,0,0.2); padding: 10px 12px;
+            border-radius: 8px; gap: 12px;
+        }
+        
+        .item-icon { font-size: 2em; }
+        .item-details { flex: 1; }
+        .item-name { font-weight: bold; font-size: 1em; color: #fff; }
+        .item-desc { font-size: 0.8em; color: var(--text-dim); margin-top: 2px; }
+        .item-owned { font-size: 0.8em; color: var(--coin-color); margin-top: 2px; }
+        
+        .price-value { font-weight: bold; font-size: 1.1em; color: var(--coin-color); }
+
+        .buy-btn {
+            background-color: var(--btn-blue); color: #111;
+            border: none; padding: 8px 12px; border-radius: 6px;
+            font-weight: bold; cursor: pointer; min-width: max-content;
+            font-size: 0.9em;
+        }
+        .buy-btn:hover:not(:disabled) { background-color: var(--btn-hover); }
+        .buy-btn:disabled { background-color: var(--btn-disabled); cursor: not-allowed; opacity: 0.5; color: #fff; }
+
+        .modal-btn { padding: 10px 20px; margin: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1em;}
+        #btn-reset { background-color: var(--danger); color: #111; }
+        #btn-keep { background-color: var(--success); color: #111; }
+
+        #tour-tooltip {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            background: var(--shop-bg);
+            border: 2px solid var(--accent);
+            padding: 15px 18px;
+            border-radius: 12px;
+            width: 280px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @media(max-width: 480px) {
+            #mini-log { 
+                width: 140px; 
+                height: 75px; 
+                top: 10px; 
+                right: 10px; 
+            } 
+            .log-header { font-size: 0.55em; padding: 2px 4px; }
+            #log-container { font-size: 0.6em; padding: 2px 4px; }
+            #hud-top-left { padding: 6px 10px; top: 10px; left: 10px; }
+            #coin-display { font-size: 1.1em; }
+            #player-meta { font-size: 0.7em; }
+            .hud-btn { padding: 8px 14px; font-size: 0.9em; bottom: 15px; }
         }
     </style>
 </head>
 <body>
 
-    <h1>Doggo Clicker</h1>
-    <div class="subtitle">Starring Rusty the Wiener Dog</div>
-    
-    <button id="click-btn" title="Click Rusty!">🐕🌭</button>
-    <div class="counter">NACA COIN: <span id="score">0</span></div>
+    <div id="intro-splash">
+        <div class="intro-content">
+            <div class="globe-logo">🌐</div>
+            <div class="studio-title">NACA STUDIOS</div>
+            <div class="studio-est">EST 2023</div>
+            <div class="studio-url">WWW.NACACORPORATION.COM</div>
+        </div>
+    </div>
 
-    <div id="cutscene-overlay">
-        <div class="explosion">💥🧨🐕</div>
-        <h2>SECRET CUTSCENE: OPERATION MINE-BLOW</h2>
-        <div class="cutscene-text">
-            You reached 50,000 NACA COIN! Cojnrad nods at Rusty the wiener dog. Rusty lights the fuse with a tiny paw. <br><br><strong>KABOOM!</strong> The mine goes up in smoke! Mission accomplished.
+    <div id="tutorial-welcome-modal" class="modal-overlay">
+        <div class="modal-content" style="padding: 25px; text-align: center; max-width: 400px; display: block;">
+            <div class="modal-header" style="color: var(--coin-color); border: none; padding-bottom: 5px;">Welcome to Doggo Clicker! 🐾</div>
+            <p style="font-size: 0.95em; color: var(--text-dim); margin-bottom: 15px; line-height: 1.4;">
+                <b>How to beat the game:</b> Reach Max Level (Lvl 6), hire every doggo, and discover all 4 rare ores (Ruby, Gold, Diamond, Emerald)!
+            </p>
+            <p style="font-size: 0.95em; color: var(--text-dim); margin-bottom: 20px; line-height: 1.4;">Ready to start mining, or would you like a guided tour of the game first?</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="modal-btn" onclick="startTour()" style="background-color: var(--btn-blue); color: #111; margin: 0; border-radius: 8px; width: 100%;">Show me around too 🧭</button>
+                <button class="modal-btn" onclick="skipTutorial()" style="background-color: var(--danger); color: #111; margin: 0; border-radius: 8px; width: 100%;">Skip & Start Digging ⛏️</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tour-tooltip">
+        <div id="tour-text" style="color: #fff; font-size: 0.95em; margin-bottom: 12px; line-height: 1.4;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <button class="buy-btn" onclick="skipTutorial()" style="background-color: var(--danger); font-size: 0.8em; padding: 5px 10px; color: #111;">Skip</button>
+            <button class="buy-btn" id="tour-next-btn" onclick="nextTourStep()" style="background-color: var(--success); color: #111; font-size: 0.85em; padding: 6px 12px;">Continue ➡️</button>
+        </div>
+    </div>
+
+    <div id="mining-zone" ontouchstart="handleMiningInput(event)" onclick="handleMiningInput(event)"></div>
+    
+    <div id="cooldown-bar"></div>
+    <div id="miner-player">👷‍♂️</div>
+    <div id="dog-den"></div>
+
+    <div id="hud-top-left">
+        <div id="coin-display">0 NACA COIN</div>
+        <div id="player-meta">Lvl: <span id="stat-level">1</span> | Wait: <span id="stat-cooldown">12</span>s</div>
+    </div>
+
+    <div id="mini-log">
+        <div class="log-header">Mining Log</div>
+        <div id="log-container"></div>
+    </div>
+
+    <button id="prices-toggle-btn" class="hud-btn" onclick="openPrices()">📊 Prices</button>
+    <button id="shop-toggle-btn" class="hud-btn" onclick="openShop()">🛒 Shop</button>
+
+    <div id="prices-modal" class="modal-overlay" onclick="closePricesOutside(event)">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closePrices()">✖</button>
+            <div class="modal-header" style="color: #cba6f7;">Sales Prices & Drop Rates</div>
+            
+            <div class="items-container">
+                <div class="list-item">
+                    <div class="item-icon">🔴</div>
+                    <div class="item-details">
+                        <div class="item-name" style="color: var(--ruby);">Ruby</div>
+                        <div class="item-desc">Rarity: Common (70% Drop Rate)</div>
+                    </div>
+                    <div class="price-value">10 NACA COIN</div>
+                </div>
+
+                <div class="list-item">
+                    <div class="item-icon">🟡</div>
+                    <div class="item-details">
+                        <div class="item-name" style="color: var(--gold);">Gold</div>
+                        <div class="item-desc">Rarity: Uncommon (20% Drop Rate)</div>
+                    </div>
+                    <div class="price-value">50 NACA COIN</div>
+                </div>
+
+                <div class="list-item">
+                    <div class="item-icon">💎</div>
+                    <div class="item-details">
+                        <div class="item-name" style="color: var(--diamond);">Diamond</div>
+                        <div class="item-desc">Rarity: Rare (9% Drop Rate)</div>
+                    </div>
+                    <div class="price-value">155 NACA COIN</div>
+                </div>
+
+                <div class="list-item">
+                    <div class="item-icon">🟩</div>
+                    <div class="item-details">
+                        <div class="item-name" style="color: var(--emerald);">Emerald</div>
+                        <div class="item-desc">Rarity: Legendary (1% Drop Rate)</div>
+                    </div>
+                    <div class="price-value">1,000 NACA COIN</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shop-modal" class="modal-overlay" onclick="closeShopOutside(event)">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeShop()">✖</button>
+            <div class="modal-header">SupaKoOl Shop</div>
+            
+            <div class="items-container">
+                <div class="list-item" id="shop-reset-item" style="display: none;">
+                    <div class="item-icon">🔄</div>
+                    <div class="item-details">
+                        <div class="item-name">Universe Reset</div>
+                        <div class="item-desc">Prestige and restart your mining empire.</div>
+                    </div>
+                    <button class="buy-btn" onclick="resetGame()" style="background-color: var(--danger); color: #111;">Reset</button>
+                </div>
+
+                <div class="list-item">
+                    <div class="item-icon">⬆️</div>
+                    <div class="item-details">
+                        <div class="item-name">Level Up</div>
+                        <div class="item-desc">-2s click time.</div>
+                    </div>
+                    <button class="buy-btn" id="btn-level" onclick="buyLevel()">50 NACA COIN</button>
+                </div>
+
+                <div class="list-item">
+                    <div class="item-icon">🐕</div>
+                    <div class="item-details">
+                        <div class="item-name">Bob (Chihuahua)</div>
+                        <div class="item-desc">Mines 1 ore / 10s</div>
+                        <div class="item-owned">Owned: <span id="qty-bob">0</span></div>
+                    </div>
+                    <button class="buy-btn" id="btn-bob" onclick="buyDog('bob', 30, '🐕')">30 NACA COIN</button>
+                </div>
+
+                <div class="list-item">
+                    <div class="item-icon">🌭</div>
+                    <div class="item-details">
+                        <div class="item-name">Rusty (Wiener Dog)</div>
+                        <div class="item-desc">Mines 1 ore / 7s</div>
+                        <div class="item-owned">Owned: <span id="qty-rusty">0</span></div>
+                    </div>
+                    <button class="buy-btn" id="btn-rusty" onclick="buyDog('rusty', 500, '🌭')">500 NACA COIN</button>
+                </div>
+
+                <div class="list-item">
+                    <div class="item-icon">🐩</div>
+                    <div class="item-details">
+                        <div class="item-name">Patricia (Poodle)</div>
+                        <div class="item-desc">Mines 1 ore / 3s</div>
+                        <div class="item-owned">Owned: <span id="qty-patricia">0</span></div>
+                    </div>
+                    <button class="buy-btn" id="btn-patricia" onclick="buyDog('patricia', 2000, '🐩')">2,000 NACA COIN</button>
+                </div>
+
+                <div class="list-item">
+                    <div class="item-icon">🐕‍🦺</div>
+                    <div class="item-details">
+                        <div class="item-name">Conrad (Dobe)</div>
+                        <div class="item-desc">Mines 2 ores / 3s</div>
+                        <div class="item-owned">Owned: <span id="qty-conrad">0</span></div>
+                    </div>
+                    <button class="buy-btn" id="btn-conrad" onclick="buyDog('conrad', 5000, '🐕‍🦺')">5,000 NACA COIN</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="canine-explosion-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: center; padding: 30px; max-width: 450px; display: block;">
+            <div class="modal-header" style="color: var(--danger); border: none; font-size: 1.5em; letter-spacing: 2px;">VAULT MILESTONE: 75,000 COINS</div>
+            <div style="font-size: 3.5em; margin: 15px 0; animation: pulse-globe 0.6s infinite alternate ease-in-out;">🐕‍🦺 🌭 💥 🌋</div>
+            <h2 style="color: #fff; margin: 10px 0; font-size: 1.4em;">Conrad & Rusty Blew Up The Mine!</h2>
+            <p style="color: var(--text-dim); font-size: 0.92em; margin-bottom: 20px; line-height: 1.4;">
+                You hit 75,000 NACA Coins! Conrad (the Dobe) and Rusty (the Wiener Dog) grabbed the industrial detonator box, slammed the plunger, and completely vaporized the cavern network!
+            </p>
+            <button class="modal-btn" onclick="resetGame()" style="background-color: var(--danger); color: #111; width: 100%; border-radius: 8px;">Restart Universe 🔄</button>
+        </div>
+    </div>
+
+    <div id="endgame-modal" class="modal-overlay">
+        <div class="modal-content" id="endgame-content" style="display: block; text-align: center; padding: 30px 20px;">
+            <h2 style="color: var(--coin-color); font-size: 1.8em; margin-top: 0;">Mined It All! 🏆</h2>
+            <p style="font-size: 1em; margin-bottom: 20px;">You hit Max Level, hired every doggo, and found every type of rare ore!</p>
+            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <button class="modal-btn" id="btn-reset" onclick="resetGame()">Reset & Prestige</button>
+                <button class="modal-btn" id="btn-keep" onclick="closeEndgame()">Keep Digging</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let score = 0;
-        let cutsceneTriggered = false;
-        
-        const clickBtn = document.getElementById('click-btn');
-        const scoreDisplay = document.getElementById('score');
-        const cutsceneOverlay = document.getElementById('cutscene-overlay');
-
-        clickBtn.addEventListener('click', () => {
-            if (cutsceneTriggered) return;
-
-            score++;
-            scoreDisplay.textContent = score;
-
-            // Check for the 50,000 NACA COIN Secret Cutscene
-            if (score >= 50000) {
-                cutsceneTriggered = true;
-                cutsceneOverlay.classList.add('active');
-            }
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('intro-splash');
+                if(splash) {
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.remove();
+                        document.getElementById('tutorial-welcome-modal').style.display = 'flex';
+                    }, 800);
+                }
+            }, 2500);
         });
-    </script>
 
+        const tourSteps = [
+            {
+                text: "⛏️ <b>The Rock Wall:</b> Tap anywhere on this wall to swing your pickaxe, crack open ores, and earn NACA Coin!",
+                pos: { top: '35%', left: '50%', transform: 'translate(-50%, -50%)' }
+            },
+            {
+                text: "📜 <b>Compact Mining Log:</b> Real-time drops and events are tracked right here in this clean feed.",
+                pos: { top: '100px', right: '15px' }
+            },
+            {
+                text: "📊 <b>Sales Prices:</b> Tap this button anytime to inspect ore drop rates and coin values.",
+                pos: { bottom: '85px', left: '15px' }
+            },
+            {
+                text: "🛒 <b>SupaKoOl Shop:</b> Spend your hard-earned coins here to upgrade your level or hire automatic mining doggos!",
+                pos: { bottom: '85px', right: '15px' }
+            }
+        ];
+
+        let currentTourStep = 0;
+
+        function startTour() {
+            document.getElementById('tutorial-welcome-modal').style.display = 'none';
+            currentTourStep = 0;
+            showTourStep();
+        }
+
+        function showTourStep() {
+            const tooltip = document.getElementById('tour-tooltip');
+            const textEl = document.getElementById('tour-text');
+            const nextBtn = document.getElementById('tour-next-btn');
+            
+            if (currentTourStep >= tourSteps.length) {
+                tooltip.style.display = 'none';
+                logMessage('Tutorial completed. Ready!');
+                return;
+            }
+
+            tooltip.style.display = 'block';
+            const step = tourSteps[currentTourStep];
+            textEl.innerHTML = step.text;
+
+            if (currentTourStep === tourSteps.length - 1) {
+                nextBtn.innerText = "I'm ready to dig!";
+            } else {
+                nextBtn.innerText = "Continue ➡️";
+            }
+
+            tooltip.style.top = 'auto';
+            tooltip.style.bottom = 'auto';
+            tooltip.style.left = 'auto';
+            tooltip.style.right = 'auto';
+            tooltip.style.transform = 'none';
+
+            if (step.pos.top) tooltip.style.top = step.pos.top;
+            if (step.pos.bottom) tooltip.style.bottom = step.pos.bottom;
+            if (step.pos.left) tooltip.style.left = step.pos.left;
+            if (step.pos.right) tooltip.style.right = step.pos.right;
+            if (step.pos.transform) tooltip.style.transform = step.pos.transform;
+        }
+
+        function nextTourStep() {
+            currentTourStep++;
+            showTourStep();
+        }
+
+        function skipTutorial() {
+            document.getElementById('tutorial-welcome-modal').style.display = 'none';
+            document.getElementById('tour-tooltip').style.display = 'none';
+            logMessage('Tutorial skipped. Let\'s dig!');
+        }
+
+        let coins = 0;
+        let playerLevel = 1;
+        const maxLevel = 6;
+        let clickCooldown = 12000;
+        let isCooldown = false;
+        let cooldownTimeout;
+        
+        let dogs = { bob: 0, rusty: 0, patricia: 0, conrad: 0 };
+        let oreStats = { ruby: false, gold: false, diamond: false, emerald: false };
+        let endgameTriggered = false;
+
+        let canineExplosionTriggered = false;
+
+        const dogVisuals = {
+            bob: { class: 'v-bob' },
+            rusty: { class: 'v-rusty' },
+            patricia: { class: 'v-patricia' },
+            conrad: { class: 'v-conrad' }
+        };
+
+        const ORES = [
+            { id: 'ruby', name: 'Ruby', chance: 70, value: 10, color: '#f38ba8', icon: '🔴' },
+            { id: 'gold', name: 'Gold', chance: 20, value: 50, color: '#f9e2af', icon: '🟡' },
+            { id: 'diamond', name: 'Diamond', chance: 9, value: 155, color: '#89dceb', icon: '💎' },
+            { id: 'emerald', name: 'Emerald', chance: 1, value: 1000, color: '#a6e3a1', icon: '🟩' }
+        ];
+
+        function rollOre() {
+            let rand = Math.random() * 100;
+            if (rand < 70) return ORES[0]; 
+            if (rand < 90) return ORES[1]; 
+            if (rand < 99) return ORES[2]; 
+            return ORES[3]; 
+        }
+
+        function playExplosionSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const bufferSize = audioCtx.sampleRate * 2.5;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const output = buffer.getChannelData(0);
+                
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+
+                const whiteNoise = audioCtx.createBufferSource();
+                whiteNoise.buffer = buffer;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(600, audioCtx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 2.0);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(1.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.4);
+
+                whiteNoise.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                whiteNoise.start();
+            } catch (e) {
+                console.log("Web Audio API prevented or not supported", e);
+            }
+        }
+
+        function triggerCanineExplosion() {
+            canineExplosionTriggered = true;
+            playExplosionSound();
+            document.getElementById('canine-explosion-modal').style.display = 'flex';
+        }
+
+        function processMineResult(count, sourceName, sourceId = null, clickX = null, clickY = null) {
+            let totalVal = 0;
+            
+            for(let i = 0; i < count; i++) {
+                let ore = rollOre();
+                totalVal += ore.value;
+                oreStats[ore.id] = true; 
+                
+                if (i < 3) spawnFloatingOre(ore, sourceId, clickX, clickY);
+                
+                logMessage(`${sourceName}: ${ore.icon} +${ore.value}`);
+            }
+            
+            coins += totalVal;
+
+            if (coins >= 75000 && !canineExplosionTriggered) {
+                triggerCanineExplosion();
+            }
+
+            updateUI();
+            checkEndgame();
+        }
+
+        function spawnFloatingOre(ore, sourceId, clickX, clickY) {
+            const el = document.createElement('div');
+            el.className = 'ore-visual';
+            el.style.color = ore.color;
+            el.innerText = `+${ore.value} ${ore.icon}`;
+            
+            let startX, startY;
+
+            if (clickX !== null && clickY !== null) {
+                startX = clickX - 20;
+                startY = clickY - 20;
+            } else if (sourceId) {
+                const dogEls = document.getElementsByClassName(dogVisuals[sourceId].class);
+                if (dogEls.length > 0) {
+                    const rect = dogEls[0].getBoundingClientRect();
+                    startX = rect.left + (rect.width/2);
+                    startY = rect.top;
+                }
+            } else {
+                startX = window.innerWidth / 2;
+                startY = window.innerHeight / 2;
+            }
+
+            el.style.left = startX + 'px';
+            el.style.top = startY + 'px';
+
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1200);
+        }
+
+        function spawnDogInMine(type, icon) {
+            const den = document.getElementById('dog-den');
+            const dogEl = document.createElement('div');
+            dogEl.className = `visual-dog ${dogVisuals[type].class}`;
+            dogEl.innerText = icon;
+            
+            let randomX = Math.random() > 0.5 
+                ? (Math.random() * 25) + 5 
+                : (Math.random() * 25) + 70; 
+            
+            let randomY = (Math.random() * 70) + 15; 
+            
+            dogEl.style.left = randomX + '%';
+            dogEl.style.top = randomY + '%';
+
+            den.appendChild(dogEl);
+        }
+
+        function animateDogs(type) {
+            const dogEls = document.getElementsByClassName(dogVisuals[type].class);
+            for (let el of dogEls) {
+                el.classList.add('dog-bark');
+                setTimeout(() => el.classList.remove('dog-bark'), 200);
+            }
+        }
+
+        let lastTouchTime = 0;
+        function handleMiningInput(event) {
+            if (canineExplosionTriggered) return;
+
+            if (event.type === 'touchstart') {
+                lastTouchTime = Date.now();
+            } else if (event.type === 'click' && Date.now() - lastTouchTime < 500) {
+                return;
+            }
+
+            if (isCooldown) return;
+
+            let clientX, clientY;
+            if (event.touches && event.touches.length > 0) {
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            } else {
+                clientX = event.clientX;
+                clientY = event.clientY;
+            }
+
+            isCooldown = true;
+            const miner = document.getElementById('miner-player');
+            miner.classList.add('mining-swing');
+            setTimeout(() => miner.classList.remove('mining-swing'), 100);
+
+            const bar = document.getElementById('cooldown-bar');
+            bar.style.transition = 'none';
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.transition = `width ${clickCooldown}ms linear`;
+                bar.style.width = '100%';
+            }, 50);
+
+            clearTimeout(cooldownTimeout);
+            cooldownTimeout = setTimeout(() => {
+                isCooldown = false;
+                bar.style.transition = 'none';
+                bar.style.width = '0%';
+            }, clickCooldown);
+
+            processMineResult(1, 'Manual Mine', null, clientX, clientY);
+        }
+
+        function buyLevel() {
+            let cost = playerLevel * 50;
+            if (coins >= cost && playerLevel < maxLevel) {
+                coins -= cost;
+                playerLevel++;
+                clickCooldown = Math.max(2000, clickCooldown - 2000);
+                logMessage(`Upgraded to Level ${playerLevel}!`);
+                updateUI();
+                checkEndgame();
+            }
+        }
+
+        function buyDog(type, baseCost, icon) {
+            let qty = dogs[type];
+            let cost = Math.floor(baseCost * Math.pow(1.15, qty));
+            if (coins >= cost) {
+                coins -= cost;
+                dogs[type]++;
+                spawnDogInMine(type, icon);
+                logMessage(`Hired ${type} (${icon})!`);
+                
+                if (coins >= 75000 && !canineExplosionTriggered) {
+                    triggerCanineExplosion();
+                }
+
+                updateUI();
+                checkEndgame();
+            }
+        }
+
+        function getDogCost(type, baseCost) {
+            return Math.floor(baseCost * Math.pow(1.15, dogs[type]));
+        }
+
+        setInterval(() => {
+            if (dogs.bob > 0) {
+                processMineResult(dogs.bob, 'Bob (Chihuahua)', 'bob');
+                animateDogs('bob');
+            }
+        }, 10000);
+
+        setInterval(() => {
+            if (dogs.rusty > 0) {
+                processMineResult(dogs.rusty, 'Rusty (Wiener Dog)', 'rusty');
+                animateDogs('rusty');
+            }
+        }, 7000);
+
+        setInterval(() => {
+            if (dogs.patricia > 0) {
+                processMineResult(dogs.patricia, 'Patricia (Poodle)', 'patricia');
+                animateDogs('patricia');
+            }
+        }, 3000);
+
+        setInterval(() => {
+            if (dogs.conrad > 0) {
+                processMineResult(dogs.conrad * 2, 'Conrad (Dobe)', 'conrad');
+                animateDogs('conrad');
+            }
+        }, 3000);
+
+        function updateUI() {
+            document.getElementById('coin-display').innerText = `${coins.toLocaleString()} NACA COIN`;
+            document.getElementById('stat-level').innerText = playerLevel;
+            document.getElementById('stat-cooldown').innerText = (clickCooldown / 1000).toFixed(0);
+
+            document.getElementById('qty-bob').innerText = dogs.bob;
+            document.getElementById('qty-rusty').innerText = dogs.rusty;
+            document.getElementById('qty-patricia').innerText = dogs.patricia;
+            document.getElementById('qty-conrad').innerText = dogs.conrad;
+
+            let lvlCost = playerLevel * 50;
+            const btnLevel = document.getElementById('btn-level');
+            if (playerLevel >= maxLevel) {
+                btnLevel.innerText = 'MAX LEVEL';
+                btnLevel.disabled = true;
+            } else {
+                btnLevel.innerText = `${lvlCost.toLocaleString()} NACA COIN`;
+                btnLevel.disabled = coins < lvlCost;
+            }
+
+            updateBuyButton('btn-bob', 'bob', 30, coins);
+            updateBuyButton('btn-rusty', 'rusty', 500, coins);
+            updateBuyButton('btn-patricia', 'patricia', 2000, coins);
+            updateBuyButton('btn-conrad', 'conrad', 5000, coins);
+        }
+
+        function updateBuyButton(btnId, type, baseCost, currentCoins) {
+            let cost = getDogCost(type, baseCost);
+            const btn = document.getElementById(btnId);
+            btn.innerText = `${cost.toLocaleString()} NACA COIN`;
+            btn.disabled = currentCoins < cost;
+        }
+
+        function logMessage(msg) {
+            const container = document.getElementById('log-container');
+            const div = document.createElement('div');
+            div.innerText = msg;
+            container.appendChild(div);
+            if (container.children.length > 30) {
+                container.removeChild(container.firstChild);
+            }
+        }
+
+        function openShop() {
+            document.getElementById('shop-modal').style.display = 'flex';
+            updateUI();
+        }
+        function closeShop() {
+            document.getElementById('shop-modal').style.display = 'none';
+        }
+        function closeShopOutside(e) {
+            if (e.target.id === 'shop-modal') closeShop();
+        }
+
+        function openPrices() {
+            document.getElementById('prices-modal').style.display = 'flex';
+        }
+        function closePrices() {
+            document.getElementById('prices-modal').style.display = 'none';
+        }
+        function closePricesOutside(e) {
+            if (e.target.id === 'prices-modal') closePrices();
+        }
+
+        function checkEndgame() {
+            if (endgameTriggered) return;
+            let allDogsOwned = dogs.bob > 0 && dogs.rusty > 0 && dogs.patricia > 0 && dogs.conrad > 0;
+            let allOresFound = oreStats.ruby && oreStats.gold && oreStats.diamond && oreStats.emerald;
+            let maxedLevel = playerLevel >= maxLevel;
+
+            if (maxedLevel && allDogsOwned && allOresFound) {
+                endgameTriggered = true;
+                document.getElementById('shop-reset-item').style.display = 'flex';
+                document.getElementById('endgame-modal').style.display = 'flex';
+            }
+        }
+
+        function closeEndgame() {
+            document.getElementById('endgame-modal').style.display = 'none';
+            logMessage('Post-game mode unlocked! Keep mining...');
+        }
+
+        function resetGame() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        updateUI();
+    </script>
 </body>
 </html>
