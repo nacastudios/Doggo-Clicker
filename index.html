@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Doggo Clicker - Universal Edition</title>
+    <title>Doggo Clicker By NACA STUDIOS</title>
     <style>
         :root {
             --mine-bg: #11111b;
@@ -818,9 +818,7 @@
             }
         }
 
-        function buyDog(type, baseCost, icon) {
-            let qty = dogs[type];
-            let cost = Math.floor(baseCost * Math.pow(1.15, qty));
+        function buyDog(type, cost, icon) {
             if (coins >= cost) {
                 coins -= cost;
                 dogs[type]++;
@@ -834,10 +832,6 @@
                 updateUI();
                 checkEndgame();
             }
-        }
-
-        function getDogCost(type, baseCost) {
-            return Math.floor(baseCost * Math.pow(1.15, dogs[type]));
         }
 
         setInterval(() => {
@@ -888,14 +882,13 @@
                 btnLevel.disabled = coins < lvlCost;
             }
 
-            updateBuyButton('btn-bob', 'bob', 30, coins);
-            updateBuyButton('btn-rusty', 'rusty', 500, coins);
-            updateBuyButton('btn-patricia', 'patricia', 2000, coins);
-            updateBuyButton('btn-conrad', 'conrad', 5000, coins);
+            updateBuyButton('btn-bob', 30, coins);
+            updateBuyButton('btn-rusty', 500, coins);
+            updateBuyButton('btn-patricia', 2000, coins);
+            updateBuyButton('btn-conrad', 5000, coins);
         }
 
-        function updateBuyButton(btnId, type, baseCost, currentCoins) {
-            let cost = getDogCost(type, baseCost);
+        function updateBuyButton(btnId, cost, currentCoins) {
             const btn = document.getElementById(btnId);
             btn.innerText = `${cost.toLocaleString()} NACA COIN`;
             btn.disabled = currentCoins < cost;
