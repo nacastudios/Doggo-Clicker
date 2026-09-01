@@ -217,6 +217,7 @@
             word-break: break-all;
         }
 
+        /* BOTTOM HUD BUTTONS */
         .hud-btn {
             position: absolute;
             bottom: 20px;
@@ -228,6 +229,10 @@
             z-index: 10;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             transition: transform 0.1s, background-color 0.2s;
+            min-height: 44px; /* Mobile touch target size */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .hud-btn:active { transform: scale(0.95); }
 
@@ -237,6 +242,17 @@
         #shop-toggle-btn { right: 15px; background-color: var(--btn-blue); color: var(--mine-bg); }
         #shop-toggle-btn:hover { background-color: var(--btn-hover); }
 
+        /* MANUAL SYNC BUTTON */
+        #manual-sync-btn {
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--emerald);
+            color: #111;
+        }
+        #manual-sync-btn:hover { background-color: #b3f0af; }
+        #manual-sync-btn:active { transform: translateX(-50%) scale(0.95); }
+
+        /* MODALS */
         .modal-overlay {
             display: none;
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -320,19 +336,29 @@
             to { opacity: 1; transform: scale(1); }
         }
 
+        /* --- NACA CONNECTIONS UI --- */
+        #user-badge {
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            background: rgba(17, 17, 27, 0.85); padding: 5px 12px; border-radius: 12px;
+            font-size: 0.8em; font-weight: bold; color: var(--diamond); border: 1px solid rgba(255,255,255,0.1); z-index: 10;
+        }
+
+        .naca-input {
+            width: 100%; padding: 10px; margin-bottom: 12px;
+            background: rgba(0,0,0,0.3); color: white; border: 1px solid var(--text-dim);
+            border-radius: 6px; outline: none; font-family: inherit;
+        }
+        .naca-input:focus { border-color: var(--diamond); }
+
         @media(max-width: 480px) {
-            #mini-log { 
-                width: 140px; 
-                height: 75px; 
-                top: 10px; 
-                right: 10px; 
-            } 
+            #mini-log { width: 140px; height: 75px; top: 10px; right: 10px; } 
             .log-header { font-size: 0.55em; padding: 2px 4px; }
             #log-container { font-size: 0.6em; padding: 2px 4px; }
             #hud-top-left { padding: 6px 10px; top: 10px; left: 10px; }
             #coin-display { font-size: 1.1em; }
             #player-meta { font-size: 0.7em; }
             .hud-btn { padding: 8px 14px; font-size: 0.9em; bottom: 15px; }
+            #manual-sync-btn { font-size: 0.85em; padding: 6px 12px; }
         }
     </style>
 </head>
@@ -347,11 +373,26 @@
         </div>
     </div>
 
+    <div id="naca-auth-modal" class="modal-overlay">
+        <div class="modal-content" style="padding: 25px; text-align: center; max-width: 400px; display: block;">
+            <div class="modal-header" style="color: var(--diamond); border: none; padding-bottom: 5px;">NACA Connections 🌐</div>
+            <p style="font-size: 0.95em; color: var(--text-dim); margin-bottom: 15px; line-height: 1.4;">
+                Log in to sync your mining empire to the cloud.
+            </p>
+            <input type="text" id="naca-username" class="naca-input" placeholder="NACA Username">
+            <input type="password" id="naca-passcode" class="naca-input" placeholder="Passcode (Optional)">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="modal-btn" onclick="nacaLogin()" style="background-color: var(--diamond); color: #111; margin: 0; border-radius: 8px; width: 100%;">Log In & Load Sync</button>
+                <button class="modal-btn" onclick="nacaGuest()" style="background-color: var(--btn-disabled); color: #fff; margin: 0; border-radius: 8px; width: 100%;">Play as Guest (Local)</button>
+            </div>
+        </div>
+    </div>
+
     <div id="tutorial-welcome-modal" class="modal-overlay">
         <div class="modal-content" style="padding: 25px; text-align: center; max-width: 400px; display: block;">
             <div class="modal-header" style="color: var(--coin-color); border: none; padding-bottom: 5px;">Welcome to Doggo Clicker! 🐾</div>
             <p style="font-size: 0.95em; color: var(--text-dim); margin-bottom: 15px; line-height: 1.4;">
-                <b>How to beat the game:</b> Reach Max Level (Lvl 6), hire every doggo, and discover all 4 rare ores (Ruby, Gold, Diamond, Emerald)!
+                <b>How to beat the game:</b> Reach Max Level (Lvl 6), hire every doggo, and discover all 4 rare ores!
             </p>
             <p style="font-size: 0.95em; color: var(--text-dim); margin-bottom: 20px; line-height: 1.4;">Ready to start mining, or would you like a guided tour of the game first?</p>
             <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -375,9 +416,11 @@
     <div id="miner-player">👷‍♂️</div>
     <div id="dog-den"></div>
 
+    <div id="user-badge">👤 <span id="user-badge-name">Guest</span></div>
+
     <div id="hud-top-left">
         <div id="coin-display">0 NACA COIN</div>
-        <div id="player-meta">Lvl: <span id="stat-level">1</span> | Wait: <span id="stat-cooldown">12</span>s</div>
+        <div id="player-meta">Lvl: <span id="stat-level">1</span> | Wait: <span id="stat-cooldown">12.0</span>s</div>
     </div>
 
     <div id="mini-log">
@@ -386,6 +429,7 @@
     </div>
 
     <button id="prices-toggle-btn" class="hud-btn" onclick="openPrices()">📊 Prices</button>
+    <button id="manual-sync-btn" class="hud-btn" onclick="manualSync()">💾 Sync</button>
     <button id="shop-toggle-btn" class="hud-btn" onclick="openShop()">🛒 Shop</button>
 
     <div id="prices-modal" class="modal-overlay" onclick="closePricesOutside(event)">
@@ -506,7 +550,7 @@
             <div style="font-size: 3.5em; margin: 15px 0; animation: pulse-globe 0.6s infinite alternate ease-in-out;">🐕‍🦺 🌭 💥 🌋</div>
             <h2 style="color: #fff; margin: 10px 0; font-size: 1.4em;">Conrad & Rusty Blew Up The Mine!</h2>
             <p style="color: var(--text-dim); font-size: 0.92em; margin-bottom: 20px; line-height: 1.4;">
-                You hit 75,000 NACA Coins! Conrad (the Dobe) and Rusty (the Wiener Dog) grabbed the industrial detonator box, slammed the plunger, and completely vaporized the cavern network!
+                You hit 75,000 NACA Coins! Conrad and Rusty grabbed the industrial detonator box, slammed the plunger, and completely vaporized the cavern network!
             </p>
             <button class="modal-btn" onclick="resetGame()" style="background-color: var(--danger); color: #111; width: 100%; border-radius: 8px;">Restart Universe 🔄</button>
         </div>
@@ -524,6 +568,85 @@
     </div>
 
     <script>
+        // --- NACA CONNECTIONS DATA SYSTEM ---
+        let nacaUser = "Guest";
+        
+        function nacaLogin() {
+            const user = document.getElementById('naca-username').value.trim();
+            if (user) {
+                nacaUser = user;
+                document.getElementById('user-badge-name').innerText = nacaUser;
+                loadGameData();
+            } else {
+                nacaUser = "Chef";
+                document.getElementById('user-badge-name').innerText = nacaUser;
+            }
+            document.getElementById('naca-auth-modal').style.display = 'none';
+            checkShowTutorial();
+        }
+
+        function nacaGuest() {
+            nacaUser = "Guest";
+            document.getElementById('user-badge-name').innerText = nacaUser;
+            document.getElementById('naca-auth-modal').style.display = 'none';
+            checkShowTutorial();
+        }
+
+        function saveGameData() {
+            const data = { coins, playerLevel, clickCooldown, dogs, oreStats, endgameTriggered, canineExplosionTriggered };
+            localStorage.setItem('naca_doggo_save_' + nacaUser, JSON.stringify(data));
+            
+            logMessage("💾 Cloud save synced!");
+        }
+
+        function loadGameData() {
+            const saved = localStorage.getItem('naca_doggo_save_' + nacaUser);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                coins = parsed.coins || 0;
+                playerLevel = parsed.playerLevel || 1;
+                clickCooldown = parsed.clickCooldown || 12000;
+                if (parsed.dogs) dogs = parsed.dogs;
+                if (parsed.oreStats) oreStats = parsed.oreStats;
+                endgameTriggered = parsed.endgameTriggered || false;
+                canineExplosionTriggered = parsed.canineExplosionTriggered || false;
+
+                // Respawn existing dogs in the den
+                for (let i = 0; i < dogs.bob; i++) spawnDogInMine('bob', '🐕');
+                for (let i = 0; i < dogs.rusty; i++) spawnDogInMine('rusty', '🌭');
+                for (let i = 0; i < dogs.patricia; i++) spawnDogInMine('patricia', '🐩');
+                for (let i = 0; i < dogs.conrad; i++) spawnDogInMine('conrad', '🐕‍🦺');
+
+                logMessage("☁️ Cloud save synced!");
+                updateUI();
+                
+                if (canineExplosionTriggered) {
+                    document.getElementById('canine-explosion-modal').style.display = 'flex';
+                }
+            }
+        }
+
+        // --- MANUAL SYNC FUNCTION ---
+        function manualSync() {
+            saveGameData(); // Reuses existing save logic
+            
+            const syncBtn = document.getElementById('manual-sync-btn');
+            const originalHTML = syncBtn.innerHTML;
+            
+            // Visual feedback on button
+            syncBtn.innerHTML = '✅ Synced!';
+            
+            setTimeout(() => {
+                syncBtn.innerHTML = originalHTML;
+            }, 2000);
+        }
+
+        // Auto-save interval every 10s
+        setInterval(() => {
+            saveGameData();
+        }, 10000);
+
+        // --- SPLASH LOGIC ---
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const splash = document.getElementById('intro-splash');
@@ -531,29 +654,24 @@
                     splash.style.opacity = '0';
                     setTimeout(() => {
                         splash.remove();
-                        document.getElementById('tutorial-welcome-modal').style.display = 'flex';
+                        document.getElementById('naca-auth-modal').style.display = 'flex';
                     }, 800);
                 }
             }, 2500);
         });
 
-        const tourSteps = [
-            {
-                text: "⛏️ <b>The Rock Wall:</b> Tap anywhere on this wall to swing your pickaxe, crack open ores, and earn NACA Coin!",
-                pos: { top: '35%', left: '50%', transform: 'translate(-50%, -50%)' }
-            },
-            {
-                text: "📜 <b>Compact Mining Log:</b> Real-time drops and events are tracked right here in this clean feed.",
-                pos: { top: '100px', right: '15px' }
-            },
-            {
-                text: "📊 <b>Sales Prices:</b> Tap this button anytime to inspect ore drop rates and coin values.",
-                pos: { bottom: '85px', left: '15px' }
-            },
-            {
-                text: "🛒 <b>SupaKoOl Shop:</b> Spend your hard-earned coins here to upgrade your level or hire automatic mining doggos!",
-                pos: { bottom: '85px', right: '15px' }
+        function checkShowTutorial() {
+            if (coins === 0 && playerLevel === 1) {
+                document.getElementById('tutorial-welcome-modal').style.display = 'flex';
             }
+        }
+
+        // --- TOUR LOGIC ---
+        const tourSteps = [
+            { text: "⛏️ <b>The Rock Wall:</b> Tap anywhere on this wall to swing your pickaxe, crack open ores, and earn NACA Coin!", pos: { top: '35%', left: '50%', transform: 'translate(-50%, -50%)' } },
+            { text: "📜 <b>Compact Mining Log:</b> Real-time drops and events are tracked right here in this clean feed.", pos: { top: '100px', right: '15px' } },
+            { text: "📊 <b>Sales Prices:</b> Tap this button anytime to inspect ore drop rates and coin values.", pos: { bottom: '85px', left: '15px' } },
+            { text: "🛒 <b>SupaKoOl Shop:</b> Spend your hard-earned coins here to upgrade your level or hire automatic mining doggos!", pos: { bottom: '85px', right: '15px' } }
         ];
 
         let currentTourStep = 0;
@@ -585,10 +703,8 @@
                 nextBtn.innerText = "Continue ➡️";
             }
 
-            tooltip.style.top = 'auto';
-            tooltip.style.bottom = 'auto';
-            tooltip.style.left = 'auto';
-            tooltip.style.right = 'auto';
+            tooltip.style.top = 'auto'; tooltip.style.bottom = 'auto';
+            tooltip.style.left = 'auto'; tooltip.style.right = 'auto';
             tooltip.style.transform = 'none';
 
             if (step.pos.top) tooltip.style.top = step.pos.top;
@@ -609,6 +725,7 @@
             logMessage('Tutorial skipped. Let\'s dig!');
         }
 
+        // --- GAME VARIABLES ---
         let coins = 0;
         let playerLevel = 1;
         const maxLevel = 6;
@@ -619,7 +736,6 @@
         let dogs = { bob: 0, rusty: 0, patricia: 0, conrad: 0 };
         let oreStats = { ruby: false, gold: false, diamond: false, emerald: false };
         let endgameTriggered = false;
-
         let canineExplosionTriggered = false;
 
         const dogVisuals = {
@@ -636,6 +752,7 @@
             { id: 'emerald', name: 'Emerald', chance: 1, value: 1000, color: '#a6e3a1', icon: '🟩' }
         ];
 
+        // --- MINING & SOUND FX LOGIC ---
         function rollOre() {
             let rand = Math.random() * 100;
             if (rand < 70) return ORES[0]; 
@@ -670,11 +787,8 @@
                 whiteNoise.connect(filter);
                 filter.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
-
                 whiteNoise.start();
-            } catch (e) {
-                console.log("Web Audio API prevented or not supported", e);
-            }
+            } catch (e) { console.log("Audio skipped", e); }
         }
 
         function triggerCanineExplosion() {
@@ -685,19 +799,16 @@
 
         function processMineResult(count, sourceName, sourceId = null, clickX = null, clickY = null) {
             let totalVal = 0;
-            
             for(let i = 0; i < count; i++) {
                 let ore = rollOre();
                 totalVal += ore.value;
                 oreStats[ore.id] = true; 
                 
                 if (i < 3) spawnFloatingOre(ore, sourceId, clickX, clickY);
-                
                 logMessage(`${sourceName}: ${ore.icon} +${ore.value}`);
             }
             
             coins += totalVal;
-
             if (coins >= 75000 && !canineExplosionTriggered) {
                 triggerCanineExplosion();
             }
@@ -713,10 +824,8 @@
             el.innerText = `+${ore.value} ${ore.icon}`;
             
             let startX, startY;
-
             if (clickX !== null && clickY !== null) {
-                startX = clickX - 20;
-                startY = clickY - 20;
+                startX = clickX - 20; startY = clickY - 20;
             } else if (sourceId) {
                 const dogEls = document.getElementsByClassName(dogVisuals[sourceId].class);
                 if (dogEls.length > 0) {
@@ -725,13 +834,11 @@
                     startY = rect.top;
                 }
             } else {
-                startX = window.innerWidth / 2;
-                startY = window.innerHeight / 2;
+                startX = window.innerWidth / 2; startY = window.innerHeight / 2;
             }
 
             el.style.left = startX + 'px';
             el.style.top = startY + 'px';
-
             document.body.appendChild(el);
             setTimeout(() => el.remove(), 1200);
         }
@@ -745,12 +852,10 @@
             let randomX = Math.random() > 0.5 
                 ? (Math.random() * 25) + 5 
                 : (Math.random() * 25) + 70; 
-            
             let randomY = (Math.random() * 70) + 15; 
             
             dogEl.style.left = randomX + '%';
             dogEl.style.top = randomY + '%';
-
             den.appendChild(dogEl);
         }
 
@@ -803,7 +908,63 @@
                 bar.style.width = '0%';
             }, clickCooldown);
 
-            processMineResult(1, 'Manual Mine', null, clientX, clientY);
+            processMineResult(1, "You", null, clientX, clientY);
+        }
+
+        // --- DOG INTERVALS ---
+        setInterval(() => {
+            if (canineExplosionTriggered) return;
+            if (dogs.bob > 0) { animateDogs('bob'); processMineResult(dogs.bob, "Bob", "bob"); }
+        }, 10000);
+
+        setInterval(() => {
+            if (canineExplosionTriggered) return;
+            if (dogs.rusty > 0) { animateDogs('rusty'); processMineResult(dogs.rusty, "Rusty", "rusty"); }
+        }, 7000);
+
+        setInterval(() => {
+            if (canineExplosionTriggered) return;
+            if (dogs.patricia > 0) { animateDogs('patricia'); processMineResult(dogs.patricia, "Patricia", "patricia"); }
+        }, 3000);
+
+        setInterval(() => {
+            if (canineExplosionTriggered) return;
+            if (dogs.conrad > 0) { animateDogs('conrad'); processMineResult(dogs.conrad * 2, "Conrad", "conrad"); }
+        }, 3000);
+
+        // --- UI AND SHOP LOGIC ---
+        function logMessage(msg) {
+            const container = document.getElementById('log-container');
+            const logEl = document.createElement('div');
+            logEl.innerText = `> ${msg}`;
+            container.prepend(logEl);
+            if (container.children.length > 25) container.lastChild.remove();
+        }
+
+        function updateUI() {
+            document.getElementById('coin-display').innerText = Math.floor(coins).toLocaleString() + " NACA COIN";
+            document.getElementById('stat-level').innerText = playerLevel;
+            document.getElementById('stat-cooldown').innerText = (clickCooldown / 1000).toFixed(1);
+            
+            document.getElementById('qty-bob').innerText = dogs.bob;
+            document.getElementById('qty-rusty').innerText = dogs.rusty;
+            document.getElementById('qty-patricia').innerText = dogs.patricia;
+            document.getElementById('qty-conrad').innerText = dogs.conrad;
+
+            const lvlBtn = document.getElementById('btn-level');
+            if (playerLevel >= maxLevel) {
+                lvlBtn.innerText = "MAX LEVEL";
+                lvlBtn.disabled = true;
+            } else {
+                let cost = playerLevel * 50;
+                lvlBtn.innerText = cost + " NACA COIN";
+                lvlBtn.disabled = coins < cost;
+            }
+
+            document.getElementById('btn-bob').disabled = coins < 30;
+            document.getElementById('btn-rusty').disabled = coins < 500;
+            document.getElementById('btn-patricia').disabled = coins < 2000;
+            document.getElementById('btn-conrad').disabled = coins < 5000;
         }
 
         function buyLevel() {
@@ -811,8 +972,8 @@
             if (coins >= cost && playerLevel < maxLevel) {
                 coins -= cost;
                 playerLevel++;
-                clickCooldown = Math.max(2000, clickCooldown - 2000);
-                logMessage(`Upgraded to Level ${playerLevel}!`);
+                clickCooldown -= 2000;
+                logMessage(`Leveled Up to ${playerLevel}! Swing faster!`);
                 updateUI();
                 checkEndgame();
             }
@@ -823,132 +984,52 @@
                 coins -= cost;
                 dogs[type]++;
                 spawnDogInMine(type, icon);
-                logMessage(`Hired ${type} (${icon})!`);
-                
-                if (coins >= 75000 && !canineExplosionTriggered) {
-                    triggerCanineExplosion();
-                }
-
+                logMessage(`Hired ${type}!`);
                 updateUI();
                 checkEndgame();
             }
         }
 
-        setInterval(() => {
-            if (dogs.bob > 0) {
-                processMineResult(dogs.bob, 'Bob (Chihuahua)', 'bob');
-                animateDogs('bob');
-            }
-        }, 10000);
+        function openShop() { document.getElementById('shop-modal').style.display = 'flex'; updateUI(); }
+        function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
+        function closeShopOutside(e) { if(e.target === document.getElementById('shop-modal')) closeShop(); }
 
-        setInterval(() => {
-            if (dogs.rusty > 0) {
-                processMineResult(dogs.rusty, 'Rusty (Wiener Dog)', 'rusty');
-                animateDogs('rusty');
-            }
-        }, 7000);
-
-        setInterval(() => {
-            if (dogs.patricia > 0) {
-                processMineResult(dogs.patricia, 'Patricia (Poodle)', 'patricia');
-                animateDogs('patricia');
-            }
-        }, 3000);
-
-        setInterval(() => {
-            if (dogs.conrad > 0) {
-                processMineResult(dogs.conrad * 2, 'Conrad (Dobe)', 'conrad');
-                animateDogs('conrad');
-            }
-        }, 3000);
-
-        function updateUI() {
-            document.getElementById('coin-display').innerText = `${coins.toLocaleString()} NACA COIN`;
-            document.getElementById('stat-level').innerText = playerLevel;
-            document.getElementById('stat-cooldown').innerText = (clickCooldown / 1000).toFixed(0);
-
-            document.getElementById('qty-bob').innerText = dogs.bob;
-            document.getElementById('qty-rusty').innerText = dogs.rusty;
-            document.getElementById('qty-patricia').innerText = dogs.patricia;
-            document.getElementById('qty-conrad').innerText = dogs.conrad;
-
-            let lvlCost = playerLevel * 50;
-            const btnLevel = document.getElementById('btn-level');
-            if (playerLevel >= maxLevel) {
-                btnLevel.innerText = 'MAX LEVEL';
-                btnLevel.disabled = true;
-            } else {
-                btnLevel.innerText = `${lvlCost.toLocaleString()} NACA COIN`;
-                btnLevel.disabled = coins < lvlCost;
-            }
-
-            updateBuyButton('btn-bob', 30, coins);
-            updateBuyButton('btn-rusty', 500, coins);
-            updateBuyButton('btn-patricia', 2000, coins);
-            updateBuyButton('btn-conrad', 5000, coins);
-        }
-
-        function updateBuyButton(btnId, cost, currentCoins) {
-            const btn = document.getElementById(btnId);
-            btn.innerText = `${cost.toLocaleString()} NACA COIN`;
-            btn.disabled = currentCoins < cost;
-        }
-
-        function logMessage(msg) {
-            const container = document.getElementById('log-container');
-            const div = document.createElement('div');
-            div.innerText = msg;
-            container.appendChild(div);
-            if (container.children.length > 30) {
-                container.removeChild(container.firstChild);
-            }
-        }
-
-        function openShop() {
-            document.getElementById('shop-modal').style.display = 'flex';
-            updateUI();
-        }
-        function closeShop() {
-            document.getElementById('shop-modal').style.display = 'none';
-        }
-        function closeShopOutside(e) {
-            if (e.target.id === 'shop-modal') closeShop();
-        }
-
-        function openPrices() {
-            document.getElementById('prices-modal').style.display = 'flex';
-        }
-        function closePrices() {
-            document.getElementById('prices-modal').style.display = 'none';
-        }
-        function closePricesOutside(e) {
-            if (e.target.id === 'prices-modal') closePrices();
-        }
+        function openPrices() { document.getElementById('prices-modal').style.display = 'flex'; }
+        function closePrices() { document.getElementById('prices-modal').style.display = 'none'; }
+        function closePricesOutside(e) { if(e.target === document.getElementById('prices-modal')) closePrices(); }
 
         function checkEndgame() {
             if (endgameTriggered) return;
-            let allDogsOwned = dogs.bob > 0 && dogs.rusty > 0 && dogs.patricia > 0 && dogs.conrad > 0;
-            let allOresFound = oreStats.ruby && oreStats.gold && oreStats.diamond && oreStats.emerald;
-            let maxedLevel = playerLevel >= maxLevel;
-
-            if (maxedLevel && allDogsOwned && allOresFound) {
+            if (playerLevel >= maxLevel && dogs.bob > 0 && dogs.rusty > 0 && dogs.patricia > 0 && dogs.conrad > 0 &&
+                oreStats.ruby && oreStats.gold && oreStats.diamond && oreStats.emerald) {
                 endgameTriggered = true;
-                document.getElementById('shop-reset-item').style.display = 'flex';
                 document.getElementById('endgame-modal').style.display = 'flex';
+                document.getElementById('shop-reset-item').style.display = 'flex';
             }
         }
 
-        function closeEndgame() {
-            document.getElementById('endgame-modal').style.display = 'none';
-            logMessage('Post-game mode unlocked! Keep mining...');
-        }
+        function closeEndgame() { document.getElementById('endgame-modal').style.display = 'none'; }
 
         function resetGame() {
-            localStorage.clear();
-            location.reload();
-        }
+            coins = 0;
+            playerLevel = 1;
+            clickCooldown = 12000;
+            dogs = { bob: 0, rusty: 0, patricia: 0, conrad: 0 };
+            oreStats = { ruby: false, gold: false, diamond: false, emerald: false };
+            endgameTriggered = false;
+            canineExplosionTriggered = false;
 
-        updateUI();
+            document.getElementById('dog-den').innerHTML = '';
+            document.getElementById('log-container').innerHTML = '';
+            document.getElementById('endgame-modal').style.display = 'none';
+            document.getElementById('canine-explosion-modal').style.display = 'none';
+            document.getElementById('shop-reset-item').style.display = 'none';
+            
+            closeShop();
+            logMessage("Universe reset! Ready to start digging again.");
+            updateUI();
+            saveGameData();
+        }
     </script>
 </body>
 </html>
